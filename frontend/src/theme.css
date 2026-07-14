@@ -1,0 +1,329 @@
+/* Design tokens from the validated data-viz reference palette (light + dark).
+   Colors are referenced by role so the theme swaps in one place. */
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+
+  /* Categorical slots (fixed order) */
+  --series-1: #2a78d6; /* blue   - price / strategy */
+  --series-2: #1baf7a; /* aqua   - SMA50 / buy&hold */
+  --series-3: #4a3aa7; /* violet - SMA200 */
+  --series-macd: #2a78d6;
+  --series-signal: #eb6834; /* orange */
+
+  /* Status (fixed, never themed as series) */
+  --good: #0ca30c;
+  --good-text: #006300;
+  --warning: #fab219;
+  --critical: #d03b3b;
+
+  --band-fill: rgba(42, 120, 214, 0.08);
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(11, 11, 11, 0.06), 0 1px 2px rgba(11, 11, 11, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.1);
+    --series-1: #3987e5;
+    --series-2: #199e70;
+    --series-3: #9085e9;
+    --series-macd: #3987e5;
+    --series-signal: #d95926;
+    --good: #0ca30c;
+    --good-text: #0ca30c;
+    --warning: #fab219;
+    --critical: #d03b3b;
+    --band-fill: rgba(57, 135, 229, 0.12);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 20px 64px;
+}
+
+.app-header h1 {
+  font-size: 1.6rem;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+
+.app-header p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.card h2 {
+  font-size: 1rem;
+  margin: 0 0 14px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.chart-title {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
+/* Ticker input */
+.ticker-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.ticker-form input {
+  flex: 1;
+  min-width: 180px;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border: 1px solid var(--axis);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+.ticker-form input:focus {
+  outline: 2px solid var(--series-1);
+  border-color: var(--series-1);
+}
+.ticker-form button {
+  padding: 12px 22px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  background: var(--series-1);
+  color: #fff;
+  cursor: pointer;
+}
+.ticker-form button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.examples {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.examples button {
+  background: none;
+  border: none;
+  color: var(--series-1);
+  cursor: pointer;
+  font-size: 0.82rem;
+  padding: 2px 4px;
+}
+
+/* Signal card */
+.signal-hero {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.signal-badge {
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 10px 22px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+}
+.signal-badge.buy {
+  background: var(--good);
+}
+.signal-badge.sell {
+  background: var(--critical);
+}
+.signal-badge.hold {
+  background: var(--warning);
+  color: #3a2a00;
+}
+.signal-meta {
+  flex: 1;
+  min-width: 220px;
+}
+.signal-meta .summary {
+  font-size: 1.02rem;
+  margin: 0 0 6px;
+}
+.signal-meta .score {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.reasons {
+  margin: 16px 0 0;
+  padding-left: 20px;
+}
+.reasons li {
+  margin: 6px 0;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+/* Indicator breakdown */
+.indicator-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+.indicator-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.indicator-item .label {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0 0 6px;
+}
+.indicator-item .state {
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot.bull {
+  background: var(--good);
+}
+.dot.bear {
+  background: var(--critical);
+}
+.dot.neutral {
+  background: var(--warning);
+}
+.indicator-item .values {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Backtest */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.stat {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.stat .k {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin: 0 0 6px;
+}
+.stat .v {
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.stat .v.pos {
+  color: var(--good-text);
+}
+.stat .v.neg {
+  color: var(--critical);
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.legend .swatch {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* Disclaimer */
+.disclaimer {
+  margin-top: 24px;
+  padding: 14px 16px;
+  border: 1px solid var(--warning);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--warning) 10%, var(--surface));
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.disclaimer strong {
+  color: var(--text-primary);
+}
+
+.error {
+  color: var(--critical);
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+.loading {
+  color: var(--text-muted);
+  margin-top: 20px;
+}
+
+.recharts-cartesian-axis-tick text {
+  fill: var(--text-muted);
+  font-size: 11px;
+}
