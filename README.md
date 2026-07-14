@@ -76,6 +76,72 @@ source .venv/bin/activate
 pytest
 ```
 
+### Local dev the Cloudflare way (optional)
+
+If you'd rather run the *deployed* stack locally (the TypeScript Pages Function
+instead of the Python backend — no Python needed):
+
+```bash
+cd frontend
+npm install
+npm run preview:cf      # builds, then serves via `wrangler pages dev`
+```
+
+Open the URL wrangler prints (usually <http://localhost:8788>). This is the
+exact code path that runs in production.
+
+---
+
+## Deploy to Cloudflare Pages
+
+This app is set up to deploy as a **single Cloudflare Pages project**: the React
+app is the static site, and the backend runs as a **Pages Function** (a
+Cloudflare Worker) in TypeScript that fetches Yahoo Finance's public JSON API.
+No separate backend server, no API key, free tier.
+
+> **Two backends, one behavior.** `backend/` (Python/FastAPI) is the tested
+> local reference. `frontend/functions/` (TypeScript) is what actually deploys to
+> Cloudflare. They implement the same indicators, signal, and backtest — verified
+> to produce identical results.
+
+### One-time setup (in your browser — ~3 minutes)
+
+1. **Push this repo to GitHub** (already done if you're reading this there).
+2. Go to the **Cloudflare dashboard** → <https://dash.cloudflare.com> (create a
+   free account if needed).
+3. In the sidebar: **Workers & Pages** → **Create** → **Pages** tab → **Connect
+   to Git**.
+4. **Authorize GitHub** when prompted — this installs the Cloudflare GitHub app.
+   Grant it access to this repository (`ergeff4/stock`), then **select that repo**.
+5. On the **Set up builds and deployments** screen, enter exactly:
+   | Field | Value |
+   |-------|-------|
+   | Production branch | `main` (or your default branch) |
+   | Framework preset | **Vite** (or "None") |
+   | **Root directory** | `frontend` |
+   | Build command | `npm run build` |
+   | Build output directory | `dist` |
+6. Click **Save and Deploy**. Cloudflare installs deps, builds the Vite app, and
+   bundles `frontend/functions/` into Workers automatically.
+7. When it finishes you get a live URL like
+   `https://stock-signal-analyzer.pages.dev`. Open it and search a ticker.
+
+### After that: it's automatic
+
+Every `git push` to your production branch triggers a new build and deploy. Pull
+requests get their own **preview URL**. Nothing else to configure — the Function
+is served at `/api/*` on the same domain as the site, so the frontend's relative
+`/api/analyze/:ticker` calls just work.
+
+### Notes
+
+- The Function calls Yahoo's public endpoint
+  (`query1.finance.yahoo.com/v8/finance/chart/...`). It occasionally rate-limits;
+  if a lookup fails, retry shortly. Swapping to another provider means editing one
+  file, `frontend/functions/_lib/analysis.ts` (`fetchYahoo`).
+- Config lives in `frontend/wrangler.toml`. The dashboard build settings above
+  take precedence for the hosted build.
+
 ---
 
 ## Project structure
@@ -96,10 +162,16 @@ backend/app/
   main.py        # FastAPI routes
   tests/         # unit tests for indicators, signals, backtest
 
-frontend/src/
-  components/    # TickerInput, SignalCard, PriceChart, IndicatorBreakdown,
+frontend/
+  src/
+    components/  # TickerInput, SignalCard, PriceChart, IndicatorBreakdown,
                  # BacktestSummary, Disclaimer
-  api.ts  types.ts  theme.css  App.tsx
+    api.ts  types.ts  theme.css  App.tsx
+  functions/     # Cloudflare Pages Functions (the deployed backend, TypeScript)
+    _lib/analysis.ts       # indicators + signal + backtest + Yahoo fetch
+    api/analyze/[ticker].ts # GET /api/analyze/:ticker
+    api/health.ts
+  wrangler.toml  # Cloudflare Pages config
 ```
 
 ---
