@@ -2,6 +2,7 @@ import { useState } from "react";
 import { analyzeTicker } from "./api";
 import type { AnalysisResponse } from "./types";
 import TickerInput from "./components/TickerInput";
+import StockBrowser from "./components/StockBrowser";
 import SignalCard from "./components/SignalCard";
 import PriceChart from "./components/PriceChart";
 import IndicatorBreakdown from "./components/IndicatorBreakdown";
@@ -38,6 +39,7 @@ export default function App() {
       </header>
 
       <TickerInput onSubmit={handleAnalyze} loading={loading} />
+      <StockBrowser onSelect={handleAnalyze} loading={loading} />
 
       {loading && <p className="loading">Fetching data and crunching indicators…</p>}
       {error && <p className="error">⚠ {error}</p>}
